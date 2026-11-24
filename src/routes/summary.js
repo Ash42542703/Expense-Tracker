@@ -10,10 +10,8 @@ import { Router } from 'express';
 export function summaryRoutes(summaryService) {
   const router = Router();
 
-  // TODO: Respond with the totals from summaryService.getSummary() (200):
-  //       { salary, basic, extra, total, savings }
   router.get('/', (req, res) => {
-    res.status(501).json({ error: 'GET /api/summary is not implemented yet' });
+    res.status(200).json(summaryService.getSummary());
   });
 
   return router;

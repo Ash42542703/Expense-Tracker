@@ -1,6 +1,10 @@
 /**
- * Calculates totals across all expenses and salaries.
+ * @param {number} value
+ * @returns {number}
  */
+function round(value) {
+  return Math.round(value + Number.EPSILON * 100) / 100;
+}
 export class SummaryService {
   /**
    * @param {import('../repositories/Ledger.js').Ledger} expenses - Ledger of expenses.
@@ -17,11 +21,20 @@ export class SummaryService {
    * @returns {{ salary: number, basic: number, extra: number, total: number, savings: number }}
    */
   getSummary() {
-    // TODO: Add up the amounts of all salaries.
-    // TODO: Add up the expense amounts by category (basic and extra),
-    //       and the overall total of all expenses.
-    // TODO: Calculate savings as total salary minus total expenses.
-    // TODO: Round every total to 2 decimal places.
-    return { salary: 0, basic: 0, extra: 0, total: 0, savings: 0 };
+    const allSalaries = this.salaries.findAll();
+    const allExpenses = this.expenses.findAll();
+    const salarytot = allSalaries.reduce((sum, salary) => sum + salary.amount, 0);
+    let basictot = 0;
+    let extratot = 0;
+    allExpenses.forEach((expense) => {
+      if (expense.category === 'basic') {
+        basictot += expense.amount;
+      } else if (expense.category === 'extra') {
+        extratot += expense.amount;
+      }
+    });
+    const totalexp = basictot + extratot;
+    const savings = salarytot - totalexp;
+    return { salary: round(salarytot), basic: round(basictot), extra: round(extratot), total: round(totalexp), savings: round(savings) };
   }
 }
