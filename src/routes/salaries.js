@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { Salary } from '../models/Salary.js';
 
 /**
  * Creates the routes for /api/salaries.
@@ -10,31 +11,55 @@ import { Router } from 'express';
 export function salaryRoutes(ledger) {
   const router = Router();
 
-  // TODO: Respond with all salaries (200).
-  router.get('/', notImplemented);
+  router.get('/', (req, res) => {
+    res.json(ledger.findAll());
+  });
 
-  // TODO: Respond with the salary with the given id (200), or 404 if not found.
-  router.get('/:id', notImplemented);
+  router.get('/:id', (req, res) => {
+    const salary = ledger.findById(req.params.id);
+    if (!salary) {
+      res.status(404).json({ error: 'Salary not found' });
+      return;
+    }
+    res.json(salary);
+  });
 
-  // TODO: Build a Salary from the request body, add it to the ledger,
-  //       and respond with the saved salary (201).
-  router.post('/', notImplemented);
+  router.post('/', (req, res) => {
+    const salary = toSalary(req.body);
+    const saved = ledger.add(salary);
+    res.status(201).json(saved);
+  });
 
-  // TODO: Build a Salary from the request body, update the salary with
-  //       the given id, and respond with it (200), or 404 if not found.
-  router.put('/:id', notImplemented);
+  router.put('/:id', (req, res) => {
+    const salary = toSalary({ ...req.body, id: req.params.id });
+    const updated = ledger.update(req.params.id, salary);
+    if (!updated) {
+      res.status(404).json({ error: 'Salary not found' });
+      return;
+    }
+    res.json(updated);
+  });
 
-  // TODO: Delete the salary with the given id and respond with 204,
-  //       or 404 if not found.
-  router.delete('/:id', notImplemented);
+  router.delete('/:id', (req, res) => {
+    const deleted = ledger.delete(req.params.id);
+    if (!deleted) {
+      res.status(404).json({ error: 'Salary not found' });
+      return;
+    }
+    res.status(204).end();
+  });
 
   return router;
 }
 
 /**
- * Placeholder handler for routes that are not built yet.
- * Remove once every route above is implemented.
+ * @param {object} bod
+ * @returns {Salary}
  */
-function notImplemented(req, res) {
-  res.status(501).json({ error: `${req.method} ${req.originalUrl} is not implemented yet` });
+function toSalary(body = {}) {
+  return new Salary({
+    id: body.id,
+    date: body.date,
+    amount: body.amount,
+  });
 }
