@@ -41,13 +41,6 @@ async function request(method, url, body) {
   if (response.status === 204) {
     return null;
   }
-
-  const isJson = response.headers.get('Content-Type')?.includes('application/json');
-  const data = await response.json();
-  if (!response.ok) {
-    throw new ApiError(data.error, response.status);
-  }
-  return data;
 }
 
 // ---------- Error dialog ----------
